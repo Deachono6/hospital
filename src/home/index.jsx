@@ -9,7 +9,9 @@ import {
 } from "@mui/material";
 import * as React from "react";
 import { Boxcenter, Buttoncheckin } from "./style";
-
+import api from "../api";
+import { useEffect } from "react";
+import moment from "moment";
 const centerLat = 17.000683277249934;
 const centerLng = 99.81573968846453;
 const radius = 0.05; // 0.05 km = 50 เมตร
@@ -29,6 +31,7 @@ function getDistance(lat1, lng1, lat2, lng2) {
 
 function Home() {
   const [loading, setLoading] = React.useState(false);
+  const [dataSession, setdataSession] = React.useState();
 
   const handleCheckIn = () => {
     if (!navigator.geolocation) {
@@ -61,15 +64,19 @@ function Home() {
     );
   };
 
-  const bull = (
-    <Box
-      component="span"
-      sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
-    >
-      •
-    </Box>
-  );
+  const fetch = async () => {
+    try {
+      const respon = await api.get("sessions");
+      console.log(respon?.data?.sessions);
+      setdataSession(respon?.data?.sessions);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
+  useEffect(() => {
+    fetch();
+  }, []);
   return (
     <Box
       sx={{
@@ -95,52 +102,62 @@ function Home() {
         }}
       />
       <Boxcenter sx={{ position: "relative", zIndex: 1 }}>
-        <Box sx={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
-          <Card sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" } }}>
-            <CardMedia
-              component="img"
-              image="https://th.bing.com/th/id/OIP.mr2hLqeNL5uNlAKQKMZHPAHaE8?w=258&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
-              alt="Random image"
+        {" "}
+        {dataSession?.map((data, index) => (
+          <Box sx={{ width: "100%", maxWidth: 600, margin: "0 auto" }}>
+            <Card
+              key={index}
               sx={{
-                width: { xs: "100%", sm: 250 },
-                height: "auto",
-                objectFit: "cover",
+                display: "flex",
+                mb: 2,
+                flexDirection: { xs: "column", sm: "row" },
               }}
-            />
-            <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
-              <CardContent>
-                <Typography gutterBottom sx={{ color: "text.secondary", fontSize: 14 }}>
-                  Word of the Day
-                </Typography>
-                <Typography variant="h5" component="div">
-                  be{bull}nev{bull}o{bull}lent
-                </Typography>
-                <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
-                  adjective
-                </Typography>
-                <Typography variant="body2">
-                  well meaning and kindly.
-                  <br />
-                  {'"a benevolent smile"'}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Buttoncheckin
-                  onClick={handleCheckIn}
-                  disabled={loading}
-                  sx={{
-                    color: "white",
-                    "&:hover": { color: "darkgreen" },
-                    "&:active": { color: "#2e7d32" },
-                  }}
-                  size="small"
-                >
-                  {loading ? "กำลังตรวจสอบตำแหน่ง..." : "ลงชื่อเข้ารับการอบรม"}
-                </Buttoncheckin>
-              </CardActions>
-            </Box>
-          </Card>
-        </Box>
+            >
+              <CardMedia
+                component="img"
+                image="https://th.bing.com/th/id/OIP.mr2hLqeNL5uNlAKQKMZHPAHaE8?w=258&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+                alt="Random image"
+                sx={{
+                  width: { xs: "100%", sm: 250 },
+                  height: "auto",
+                  objectFit: "cover",
+                }}
+              />
+              <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>
+                <CardContent>
+                  <Typography variant="h5" component="div">
+                    {data?.title}
+                  </Typography>
+                  <Typography sx={{ color: "text.secondary", mb: 1.5 }}>
+                    {data?.room}
+                  </Typography>
+                  <Typography variant="body2">
+                    เริ่มการประชุมตั้งแต่{" "}
+                    {data?.startTime && moment(data?.startTime).format("HH:mm")}{" "}
+                    - {data?.startTime && moment(data?.endTime).format("HH:mm")}{" "}
+                    นาฬิกา
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Buttoncheckin
+                    onClick={handleCheckIn}
+                    disabled={loading}
+                    sx={{
+                      color: "white",
+                      "&:hover": { color: "darkgreen" },
+                      "&:active": { color: "#2e7d32" },
+                    }}
+                    size="small"
+                  >
+                    {loading
+                      ? "กำลังตรวจสอบตำแหน่ง..."
+                      : "ลงชื่อเข้ารับการอบรม"}
+                  </Buttoncheckin>
+                </CardActions>
+              </Box>
+            </Card>
+          </Box>
+        ))}
       </Boxcenter>
     </Box>
   );
