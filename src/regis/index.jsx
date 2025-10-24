@@ -20,6 +20,7 @@ export default function Register() {
     identity: "",
     name: "",
     lastname: "",
+    departmentName: "",
     institute: "",
     password: "",
     confirmPassword: "",
@@ -113,6 +114,11 @@ export default function Register() {
             <Fildlogin
               label="นามสกุล"
               onChange={handleChange("lastname")}
+              variant="outlined"
+            />
+             <Fildlogin
+              label="กลุ่มงาน"
+              onChange={handleChange("departmentName")}
               variant="outlined"
             />
             <Fildlogin

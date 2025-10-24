@@ -12,9 +12,7 @@ import { Boxcenter, Buttoncheckin } from "./style";
 import api from "../api";
 import { useEffect } from "react";
 import moment from "moment";
-const centerLat = 17.000683277249934;
-const centerLng = 99.81573968846453;
-const radius = 0.05; // 0.05 km = 50 เมตร
+import { useAuth } from "../authContext";
 
 function getDistance(lat1, lng1, lat2, lng2) {
   const R = 6371; // รัศมีโลก (km)
@@ -32,26 +30,68 @@ function getDistance(lat1, lng1, lat2, lng2) {
 function Home() {
   const [loading, setLoading] = React.useState(false);
   const [dataSession, setdataSession] = React.useState();
+  const { user } = useAuth();
 
-  const handleCheckIn = () => {
+  const handleCheckIn = async (data) => {
     if (!navigator.geolocation) {
       alert("❌ เบราว์เซอร์นี้ไม่รองรับการระบุตำแหน่ง");
       return;
     }
 
-    setLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        const distance = getDistance(userLat, userLng, centerLat, centerLng);
+    if (!user) {
+      alert("❌ ไม่พบข้อมูลผู้ใช้งาน");
+      return;
+    }
 
-        if (distance <= radius) {
-          alert(`✅ เช็คชื่อสำเร็จ! (ระยะ ${distance.toFixed(3)} km)`);
-        } else {
-          alert(`❌ อยู่นอกพื้นที่ (${distance.toFixed(3)} km จากจุดกลาง)`);
+    if (!data?._id || data.latitude == null || data.longitude == null) {
+      alert("❌ ข้อมูล session ไม่สมบูรณ์");
+      return;
+    }
+
+    setLoading(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const userLat = position.coords.latitude;
+          const userLng = position.coords.longitude;
+
+          // คำนวณระยะทางจากจุดกลาง
+          const distance = getDistance(
+            userLat,
+            userLng,
+            data.latitude,
+            data.longitude
+          );
+
+          // ตัวอย่างกำหนดรัศมีตรวจสอบเป็น 0.5 km
+          const radius = 0.5;  // 0.05 km = 50 เมตร
+          if (distance != null && distance > radius) {
+            alert(`❌ อยู่นอกพื้นที่ (${distance.toFixed(3)} km จากจุดกลาง)`);
+            setLoading(false);
+            return;
+          }
+
+          // เรียก API เช็คชื่อ
+          const response = await api.post(`/sessions/${data?._id}/checkin`, {
+            identity: user?.identity,
+            name: user?.name,
+            lastname: user?.lastname,
+            institute: user?.institute, // แก้ typo
+            latitude: userLat,
+            longitude: userLng,
+            note: `Check-in ที่พิกัด ${userLat},${userLng}`,
+          });
+
+          
+            console.log(response.data);
+            alert("✅ เช็คชื่อสำเร็จ");
+        } catch (err) {
+          console.error(err);
+          alert("⚠️ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้");
+        } finally {
+          setLoading(false);
         }
-        setLoading(false);
       },
       (error) => {
         setLoading(false);
@@ -67,7 +107,7 @@ function Home() {
   const fetch = async () => {
     try {
       const respon = await api.get("sessions");
-      console.log(respon?.data?.sessions);
+    
       setdataSession(respon?.data?.sessions);
     } catch (err) {
       console.error(err);
@@ -140,7 +180,7 @@ function Home() {
                 </CardContent>
                 <CardActions>
                   <Buttoncheckin
-                    onClick={handleCheckIn}
+                    onClick={() => handleCheckIn(data)}
                     disabled={loading}
                     sx={{
                       color: "white",
