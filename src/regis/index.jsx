@@ -17,13 +17,13 @@ import { useNavigate } from "react-router-dom";
 export default function Register() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    identity: "",
+    phoneNumber: "",
     name: "",
     lastname: "",
     departmentName: "",
     institute: "",
-    password: "",
-    confirmPassword: "",
+    role: "",
+   
   });
   const backgroundStyle = {
     backgroundImage: `url(${backgroundImage})`,
@@ -50,12 +50,10 @@ export default function Register() {
           title: "สมัครสมาชิกสำเร็จ",
           icon: "success",
           confirmButtonText: "ตกลง",
-        
         }).then(() => {
-         navigate("/Login") // เปลี่ยนเส้นทางไปยังหน้า Login
-           console.log(response);
+          navigate("/Login"); // เปลี่ยนเส้นทางไปยังหน้า Login
+          console.log(response);
         });
-       
       } // สมมติ data คือข้อมูลที่ต้องการส่งไป
     } catch (error) {
       console.error("There was an error!", error);
@@ -92,17 +90,17 @@ export default function Register() {
             }}
           >
             <Fildlogin
-              label="เลขบัตรประชาชน"
+              label="เบอร์โทรศัพท์"
               variant="outlined"
               inputProps={{
-                maxLength: 13, // จำกัดความยาว
+                maxLength: 10, // จำกัดความยาว
                 inputMode: "numeric", // แสดง numpad บนมือถือ
               }}
               onChange={(e) => {
                 const value = e.target.value;
                 // ลบทุกตัวอักษรที่ไม่ใช่เลข
                 e.target.value = value.replace(/\D/g, "");
-                handleChange("identity")(e);
+                handleChange("phoneNumber")(e);
               }}
             />
 
@@ -116,7 +114,7 @@ export default function Register() {
               onChange={handleChange("lastname")}
               variant="outlined"
             />
-             <Fildlogin
+            <Fildlogin
               label="กลุ่มงาน"
               onChange={handleChange("departmentName")}
               variant="outlined"
@@ -125,19 +123,6 @@ export default function Register() {
               label="หน่วยงาน"
               onChange={handleChange("institute")}
               variant="outlined"
-            />
-
-            <Fildlogin
-              label="รหัสผ่าน"
-              type="password"
-              onChange={handleChange("password")}
-              variant="outlined"
-            />
-            <Fildlogin
-              label="ยืนยันรหัสผ่าน"
-              type="password"
-              variant="outlined"
-              onChange={handleChange("confirmPassword")}
             />
           </Box>
 

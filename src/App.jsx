@@ -19,6 +19,8 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import CssBaseline from "@mui/material/CssBaseline";
 import Register from "./regis";
+import CreateSessionPage from "./session";
+import UserProfile from "./profile";
 
 const theme = createTheme({
   typography: {
@@ -54,14 +56,31 @@ function App() {
                 </ProtectedRoute>
               }
             />
+             <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfile/>
+                </ProtectedRoute>
+              }
+            />
             <Route
-              path="/Checkin"
+              path="/admin/reports"
               element={
                 <ProtectedRoute>
                   <CheckIn />
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/sessions/create"
+              element={
+                <ProtectedRoute>
+                  <CreateSessionPage/>
+                </ProtectedRoute>
+              }
+            />
+           
           </Routes>
         </AuthProvider>
       </Box>

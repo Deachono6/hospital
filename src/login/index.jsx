@@ -10,8 +10,7 @@ import api from "../api";
 import { useNavigate } from "react-router-dom";
 export default function Login() {
   const [form, setForm] = React.useState({
-    identity: "",
-    password: "",
+    phoneNumber: ""
   });
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -32,33 +31,28 @@ export default function Login() {
   const handleChange = (field) => (e) => {
     setForm({ ...form, [field]: e.target.value });
   };
-    const handleLogin = async () => {
-  
-       
-        try {
-          const res = await api.post("/users/login", form); // เรียก API login
-          const userData = res.data.user; // สมมติ backend ส่ง user object กลับมา
+  const handleLogin = async () => {
+    try {
+      const res = await api.post("/users/login", form); // เรียก API login
+      const userData = res.data.user; // สมมติ backend ส่ง user object กลับมา
 
-          login(userData); // บันทึก user ลง Context
+      login(userData); // บันทึก user ลง Context
 
-          Swal.fire({
-            icon: "success",
-            title: "เข้าสู่ระบบสำเร็จ",
-            confirmButtonText: "ตกลง",
-          }).then(() => {
-            navigate("/"); // เปลี่ยนหน้าเป็น Dashboard หรือหน้า Home
-          });
-
-        } 
-        catch (err) {
-          Swal.fire({
-            icon: "error",
-            title: "ผิดพลาด",
-            text: err.res?.data?.error || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
-          });
-        }
-      };
-
+      Swal.fire({
+        icon: "success",
+        title: "เข้าสู่ระบบสำเร็จ",
+        confirmButtonText: "ตกลง",
+      }).then(() => {
+        navigate("/"); // เปลี่ยนหน้าเป็น Dashboard หรือหน้า Home
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "ผิดพลาด",
+        text: err.res?.data?.error || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+      });
+    }
+  };
 
   return (
     <div style={backgroundStyle}>
@@ -92,35 +86,33 @@ export default function Login() {
             }}
           >
             <Fildlogin
-              label="เลขบัตรประชาชน"
+              label="เบอร์โทรศัพท์"
               variant="outlined"
               inputProps={{
-                maxLength: 13, // จำกัดความยาว
+                maxLength: 10, // จำกัดความยาว
                 inputMode: "numeric", // แสดง numpad บนมือถือ
               }}
               onChange={(e) => {
                 const value = e.target.value;
                 // ลบทุกตัวอักษรที่ไม่ใช่เลข
                 e.target.value = value.replace(/\D/g, "");
-                handleChange("identity")(e);
+                handleChange("phoneNumber")(e);
               }}
             />
-            <Fildlogin type="password" onChange={handleChange("password")} label="รหัสผ่าน" variant="outlined" />
           </Box>
 
           <ButtonLogin onClick={handleLogin} variant="contained" size="medium">
             ล็อคอิน
           </ButtonLogin>
-          <TextColor sx={{ textDecoration: "underline", cursor: "pointer" }}>
-            ลืมรหัส
-          </TextColor>
-          <TextColor
-            component="a"
-            href="/Register"
-            sx={{ textDecoration: "underline", cursor: "pointer" }}
-          >
-            ลงทะเบียน
-          </TextColor>
+          <Box sx={{ mt: 2 }}>
+            <TextColor
+              component="a"
+              href="/Register"
+              sx={{ textDecoration: "underline", cursor: "pointer" }}
+            >
+              ลงทะเบียน
+            </TextColor>
+          </Box>
         </Box>
       </Boxcenter>
     </div>

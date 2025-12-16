@@ -11,24 +11,43 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
 import { Link } from "react-router-dom";
 import { useAuth } from "../authContext";
 import backgroundImage from "../assets/hospitallogo.png";
-const pages = [
-  { label: "หน้าแรก", path: "/" },
-  { label: "แดชบอร์ด", path: "/Checkin" },
-  { label: "หน้าคะแนน", path: "/Point" },
+
+/* =======================
+   เมนูตามสิทธิ์
+======================= */
+const commonPages = [{ label: "หน้าแรก", path: "/" }];
+
+const adminPages = [
+  { label: "รายงานระบบ", path: "/admin/reports" },
+  { label: "จัดการการประชุม", path: "/admin/sessions/create" },
 ];
-const settings = ["Profile", "Logout"];
 
 function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
-  const { logout } = useAuth();
+
+  /* =======================
+     Auth
+  ======================= */
+  const { logout, user } = useAuth();
+  const isAdmin = user?.role === "admin";
+
+  const pages = isAdmin ? [...commonPages, ...adminPages] : commonPages;
+
+  const settings = isAdmin
+    ? ["Profile",  "Logout"]
+    : ["Profile", "Logout"];
+
+  /* =======================
+     Handlers
+  ======================= */
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
+
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -37,19 +56,27 @@ function ResponsiveAppBar() {
     setAnchorElNav(null);
   };
 
-  const handleCloseUserMenu = (setting) => {
+  const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
   const handleMenuClick = (setting) => {
     handleCloseUserMenu();
+
     switch (setting) {
       case "Profile":
-        console.log("ไปที่หน้าโปรไฟล์");
+       window.location.href = "/profile";
         break;
+
+      case "Admin Panel":
+        window.location.href = "/admin";
+        break;
+
       case "Logout":
         logout(null);
-        window.location.href = "/Login"; // เปลี่ยนหน้าเป็น Login
+        window.location.href = "/Login";
         break;
+
       default:
         console.log("เลือก:", setting);
     }
@@ -62,9 +89,10 @@ function ResponsiveAppBar() {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
+          {/* ===== Logo Desktop ===== */}
           <Box
             component="img"
-            src={backgroundImage} // 👉 ใส่ path โลโก้ของคุณ
+            src={backgroundImage}
             alt="Logo"
             sx={{
               display: { xs: "none", md: "flex" },
@@ -72,147 +100,110 @@ function ResponsiveAppBar() {
               width: 40,
               height: 40,
             }}
-          ></Box>
+          />
+
           <Typography
             variant="h6"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
               fontFamily: "monospace",
               fontWeight: 700,
               letterSpacing: ".1rem",
-              color: "inherit",
-              textDecoration: "none",
             }}
           >
             โรงพยาบาลอุตรดิตถ์
           </Typography>
 
+          {/* ===== Mobile Menu ===== */}
           <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
+            <IconButton onClick={handleOpenNavMenu} color="inherit">
               <MenuIcon />
             </IconButton>
+
             <Menu
-              id="menu-appbar"
               anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{ display: { xs: "block", md: "none" } }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
             >
-              {pages?.map((page, i) => (
-                <Button
+              {pages.map((page, i) => (
+                <MenuItem
                   key={i}
                   component={Link}
-                  to={page?.path}
-                  sx={{ color: "black", textTransform: "none", mx: 1 }}
+                  to={page.path}
+                  onClick={handleCloseNavMenu}
                 >
-                  {page?.label}
-                </Button>
-
-                //   <Link key={i} to={page?.path} className="hover:underline">{page?.label}</Link>
-                // <MenuItem key={i} onClick={handleCloseNavMenu}>
-                //   <Typography sx={{ textAlign: "center" }}>{page?.label}</Typography>
-                // </MenuItem>
+                  {page.label}
+                </MenuItem>
               ))}
             </Menu>
           </Box>
+
+          {/* ===== Logo Mobile ===== */}
           <Box
             sx={{
               display: { xs: "flex", md: "none" },
-              flexDirection: "column", // แนวตั้ง โลโก้บน ชื่อด้านล่าง
-              alignItems: "center", // จัดกลางแนวนอน
-              justifyContent: "center", // จัดกลางแนวตั้งถ้าต้องการเต็มพื้นที่ parent
+              flexDirection: "column",
+              alignItems: "center",
               width: "100%",
-              py: 1,
             }}
           >
             <Box
               component="img"
               src={backgroundImage}
               alt="Logo"
-              sx={{
-                width: { xs: 30, sm: 40, md: 50 }, // ปรับขนาดตามหน้าจอ
-                height: "auto",
-                mb: 0.5,
-              }}
+              sx={{ width: 30, mb: 0.5 }}
             />
             <Typography
-              variant="h6"
-              component="a"
-              href="#app-bar-with-responsive-menu"
               sx={{
                 fontFamily: "monospace",
                 fontWeight: 700,
-                fontSize: { xs: 10, sm: 12, md: 14 }, // ปรับขนาดตามหน้าจอ
-                color: "inherit",
-                textDecoration: "none",
-                textAlign: "center",
+                fontSize: 12,
               }}
             >
               โรงพยาบาลอุตรดิตถ์
-            </Typography>{" "}
+            </Typography>
           </Box>
+
+          {/* ===== Desktop Menu ===== */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {pages.map((page, i) => (
               <Button
                 key={i}
                 component={Link}
-                to={page?.path}
+                to={page.path}
                 sx={{ color: "white", textTransform: "none", mx: 1 }}
               >
-                {page?.label}
+                {page.label}
               </Button>
             ))}
           </Box>
-          <Box sx={{ flexGrow: 0 }}>
+
+          {/* ===== Avatar Menu ===== */}
+          <Box>
             <Tooltip title="Open settings">
-              <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                <Avatar alt="Remy Sharp" src="/static/images/avatar/2.jpg" />
+              <IconButton onClick={handleOpenUserMenu}>
+                <Avatar />
               </IconButton>
             </Tooltip>
+
             <Menu
-              sx={{ mt: "45px" }}
-              id="menu-appbar"
               anchorEl={anchorElUser}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
+              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+              sx={{ mt: "45px" }}
             >
               {settings.map((setting) => (
                 <MenuItem
                   key={setting}
                   onClick={() => handleMenuClick(setting)}
                 >
-                  <Typography sx={{ textAlign: "center" }}>
-                    {setting}
-                  </Typography>
+                  {setting}
                 </MenuItem>
               ))}
             </Menu>
@@ -222,4 +213,5 @@ function ResponsiveAppBar() {
     </AppBar>
   );
 }
+
 export default ResponsiveAppBar;
