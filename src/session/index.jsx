@@ -21,6 +21,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import api from "../api";
 
+
 /* ===============================
    Theme โรงพยาบาล (เขียว)
 ================================ */
@@ -126,7 +127,6 @@ const handleSubmit = async (e) => {
     await api.post("/sessions", payload);
 
     alert("✅ สร้าง Session สำเร็จ");
-
     // reset form
     setForm({
       room: "",
@@ -135,6 +135,7 @@ const handleSubmit = async (e) => {
       endTime: "",
     });
     setPosition(null);
+    window.location.href = "/";
   } catch (err) {
     console.error(err);
     alert(
