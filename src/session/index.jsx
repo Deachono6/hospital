@@ -21,16 +21,11 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import api from "../api";
 
-
-/* ===============================
-   Theme โรงพยาบาล (เขียว)
-================================ */
 const hospitalTheme = {
   primary: "#2e7d32",
   background: "#f1f8f4",
 };
 
-/* ===== Fix marker ===== */
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -39,7 +34,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-/* ===== Map click ===== */
 function MapClickHandler({ position, setPosition }) {
   useMapEvents({
     click(e) {
@@ -64,10 +58,6 @@ export default function CreateSession() {
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
-
-  /* ===============================
-     📍 ใช้ตำแหน่งปัจจุบัน
-  ================================ */
 
   function FlyToPosition({ position }) {
     const map = useMap();
@@ -102,48 +92,45 @@ export default function CreateSession() {
       () => {
         alert("ไม่สามารถดึงตำแหน่งได้");
         setLoadingGPS(false);
-      }
+      },
     );
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!position) {
-    alert("กรุณาเลือกตำแหน่งบนแผนที่");
-    return;
-  }
+    if (!position) {
+      alert("กรุณาเลือกตำแหน่งบนแผนที่");
+      return;
+    }
 
-  try {
-    const payload = {
-      room: form.room,
-      title: form.title,
-      startTime: form.startTime,
-      endTime: form.endTime,
-      latitude: position.lat,
-      longitude: position.lng,
-    };
+    try {
+      const payload = {
+        room: form.room,
+        title: form.title,
+        startTime: form.startTime,
+        endTime: form.endTime,
+        latitude: position.lat,
+        longitude: position.lng,
+      };
 
-    await api.post("/sessions", payload);
+      await api.post("/sessions", payload);
 
-    alert("✅ สร้าง Session สำเร็จ");
-    // reset form
-    setForm({
-      room: "",
-      title: "",
-      startTime: "",
-      endTime: "",
-    });
-    setPosition(null);
-    window.location.href = "/";
-  } catch (err) {
-    console.error(err);
-    alert(
-      err?.response?.data?.error ||
-        "❌ ไม่สามารถสร้าง Session ได้"
-    );
-  }
-};
+      alert("✅ สร้าง Session สำเร็จ");
+
+      setForm({
+        room: "",
+        title: "",
+        startTime: "",
+        endTime: "",
+      });
+      setPosition(null);
+      window.location.href = "/";
+    } catch (err) {
+      console.error(err);
+      alert(err?.response?.data?.error || "❌ ไม่สามารถสร้าง Session ได้");
+    }
+  };
 
   return (
     <Box
@@ -176,6 +163,15 @@ const handleSubmit = async (e) => {
 
         <Box component="form" onSubmit={handleSubmit}>
           <TextField
+            fullWidth
+            label="หัวข้อ"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            margin="normal"
+            required
+          />
+          <TextField
             select
             fullWidth
             label="ห้อง"
@@ -189,15 +185,6 @@ const handleSubmit = async (e) => {
             <MenuItem value="A102">A102</MenuItem>
           </TextField>
 
-          <TextField
-            fullWidth
-            label="หัวข้อ"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            margin="normal"
-            required
-          />
           <TextField
             fullWidth
             type="datetime-local"
@@ -219,7 +206,7 @@ const handleSubmit = async (e) => {
             margin="normal"
             InputLabelProps={{ shrink: true }}
             required
-          />    
+          />
 
           {/* ปุ่ม GPS */}
           <Stack direction="row" justifyContent="flex-end" sx={{ mt: 1 }}>

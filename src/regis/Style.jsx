@@ -1,4 +1,4 @@
-import { Box, Button, styled, TextField, Typography } from "@mui/material";
+import { Box, Button, styled, TextField, Typography, MenuItem } from "@mui/material";
 
 export const TextColor = styled(Typography)({
   color: "#3c7962",
@@ -24,6 +24,35 @@ export const ContentWrapper = styled(Box)({
   flexGrow: 1, // ขยายเต็มพื้นที่
 });
 export const Fildlogin = styled(TextField)({
+  width: "100%",
+  maxWidth: 300,
+  "& .MuiOutlinedInput-root": {
+    borderRadius: 10,
+    "&.Mui-focused fieldset": {
+      borderColor: "#3c7962", // สีเมื่อ focus
+    },
+    "& fieldset": {
+      borderColor: "#549c80ff", // สีปกติ
+      borderWidth: 2,
+    },
+    "&:hover fieldset": {
+      borderColor: "#3c7962", // สีเมื่อ hover
+    },
+    "& .MuiInputLabel-root.Mui-focused": {
+      color: "#3c7962", // สี label เมื่อ focus
+    },
+  },
+  "& .MuiInputLabel-root": {
+    color: "#555", // สี label ปกติ
+  },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: "#3c7962", // สี label เมื่อ focus
+  },
+  "& .MuiInputLabel-root.Mui-error": {
+    color: "#d32f2f", // สี label เมื่อมี error
+  },
+});
+export const MenuItemStyle = styled(MenuItem)({
   width: "100%",
   maxWidth: 300,
   "& .MuiOutlinedInput-root": {

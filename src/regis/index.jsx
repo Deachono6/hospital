@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import backgroundImage from "../assets/background.png";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography,MenuItem  } from "@mui/material";
 import {
   Boxcenter,
   ButtonConfirm,
   ContentWrapper,
   Fildlogin,
+  MenuItemStyle,
   TextColor,
 } from "./Style";
 
@@ -23,7 +24,6 @@ export default function Register() {
     departmentName: "",
     institute: "",
     role: "",
-   
   });
   const backgroundStyle = {
     backgroundImage: `url(${backgroundImage})`,
@@ -115,15 +115,33 @@ export default function Register() {
               variant="outlined"
             />
             <Fildlogin
+              select
               label="กลุ่มงาน"
+              value={form.departmentName}
               onChange={handleChange("departmentName")}
               variant="outlined"
-            />
-            <Fildlogin
+              fullWidth
+            >
+              <MenuItemStyle value="กลุ่มงานอายุรกรรม">กลุ่มงานอายุรกรรม</MenuItemStyle>
+              <MenuItemStyle value="กลุ่มงานกุมารเวชกรรม">กลุ่มงานกุมารเวชกรรม</MenuItemStyle>
+              <MenuItemStyle value="กลุ่มงานศัลยกรรมออร์โธปิดิกส์">กลุ่มงานศัลยกรรมออร์โธปิดิกส์</MenuItemStyle>
+              <MenuItemStyle value="กลุ่มงานสูติ-นรีเวชกรรม">กลุ่มงานสูติ-นรีเวชกรรม</MenuItemStyle>
+              <MenuItemStyle value="กลุ่มงานจักษุวิทยา">กลุ่มงานจักษุวิทยา</MenuItemStyle>
+            </Fildlogin>
+             <Fildlogin
+              select
               label="หน่วยงาน"
+              value={form.institute}
               onChange={handleChange("institute")}
               variant="outlined"
-            />
+              fullWidth
+            >
+              <MenuItemStyle value="เจ้าพนักงานการเงินและบัญชี">เจ้าพนักงานการเงินและบัญชี</MenuItemStyle>
+              <MenuItemStyle value="เจ้าพนักงานเครื่องคอมพิวเตอร์">เจ้าพนักงานเครื่องคอมพิวเตอร์</MenuItemStyle>
+              <MenuItemStyle value="เจ้าพนักงานทันตสาธารณสุข">เจ้าพนักงานทันตสาธารณสุข</MenuItemStyle>
+              <MenuItemStyle value="เจ้าพนักงานทันตสาธารณสุข (วุฒิผู้ช่วยทันตแพทย์)">เจ้าพนักงานทันตสาธารณสุข (วุฒิผู้ช่วยทันตแพทย์)</MenuItemStyle>
+              <MenuItemStyle value="เจ้าพนักงานธุรการ">เจ้าพนักงานธุรการ</MenuItemStyle>
+            </Fildlogin>
           </Box>
 
           <ButtonConfirm
