@@ -53,7 +53,8 @@ export default function AttendanceReport() {
 
     if (selectedDate) {
       data = data.filter(
-        (r) => new Date(r.startTime).toISOString().slice(0, 10) === selectedDate
+        (r) =>
+          new Date(r.startTime).toISOString().slice(0, 10) === selectedDate,
       );
     }
 
@@ -63,15 +64,17 @@ export default function AttendanceReport() {
   const exportCSV = () => {
     if (filteredReport.length === 0) return alert("ไม่มีข้อมูลให้ Export");
 
-    let csv = "\ufeffห้อง,หัวข้อ,ชื่อ-สกุล,เบอร์โทร,หน่วยงาน,เวลาเข้า\n";
+    let csv = "\ufeffห้อง,หัวข้อ,ชื่อ-สกุล,เบอร์โทร,หน่วยงาน,วันที่,เวลาเข้า\n";
 
     filteredReport.forEach((room) => {
       room.attendees.forEach((a) => {
-        csv += `"${room.room}","${room.title}","${a.name}","${
+        csv += `"${room.room}","${room.title}","${a.name}","=""${
           a.phoneNumber
-        }","${a.institute || ""}","${new Date(a.checkinTime).toLocaleTimeString(
-          "th-TH"
-        )}"\n`;
+        }""","${a.institute || ""}","${new Date(
+          room.startTime,
+        ).toLocaleDateString("th-TH")}","${new Date(
+          a.checkinTime,
+        ).toLocaleTimeString("th-TH")}"\n`;
       });
     });
 
@@ -132,51 +135,55 @@ export default function AttendanceReport() {
       </Card>
 
       {/* Report */}
-      {filteredReport.map((room, index) => (
-        console.log(room?.attendees.length),
+      {filteredReport.map(
+        (room, index) => (
+          console.log(room?.attendees.length),
+          room?.attendees.length > 0 && (
+            <Card key={index} sx={{ mb: 3 }}>
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  sx={{ color: "#2e7d32", fontWeight: 600 }}
+                >
+                  🏫 {room.room} — {room.title}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 2 }}>
+                  ⏰ {new Date(room.startTime).toLocaleString("th-TH")}
+                </Typography>
 
-         room?.attendees.length > 0 && (
-        <Card key={index} sx={{ mb: 3 }}>
-          <CardContent>
-            <Typography variant="h6" sx={{ color: "#2e7d32", fontWeight: 600 }}>
-              🏫 {room.room} — {room.title}
-            </Typography>
-            <Typography variant="body2" sx={{ mb: 2 }}>
-              ⏰ {new Date(room.startTime).toLocaleString("th-TH")}
-            </Typography>
-
-            <Table size="small">
-              <TableHead sx={{ bgcolor: "#e8f5e9" }}>
-                <TableRow>
-                  <TableCell>ลำดับ</TableCell>
-                  <TableCell>ชื่อ-สกุล</TableCell>
-                  <TableCell>เบอร์โทร</TableCell>
-                  <TableCell>หน่วยงาน</TableCell>
-                  <TableCell>เวลาเข้า</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {room?.attendees?.map(
-                  (a) => (
-                   
-                    (
+                <Table size="small">
+                  <TableHead sx={{ bgcolor: "#e8f5e9" }}>
+                    <TableRow>
+                      <TableCell>ลำดับ</TableCell>
+                      <TableCell>ชื่อ-สกุล</TableCell>
+                      <TableCell>เบอร์โทร</TableCell>
+                      <TableCell>หน่วยงาน</TableCell>
+                      <TableCell>วันที่</TableCell>
+                      <TableCell>เวลาเข้า</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {room?.attendees?.map((a) => (
                       <TableRow key={a.no}>
                         <TableCell>{a.no}</TableCell>
                         <TableCell>{a.name}</TableCell>
                         <TableCell>{a.phoneNumber}</TableCell>
                         <TableCell>{a.institute || "-"}</TableCell>
                         <TableCell>
+                          {new Date(room.startTime).toLocaleDateString("th-TH")}
+                        </TableCell>
+                        <TableCell>
                           {new Date(a.checkinTime).toLocaleTimeString("th-TH")}
                         </TableCell>
                       </TableRow>
-                    )
-                  )
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>)
-      ))}
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )
+        ),
+      )}
     </Box>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import {
   Box,
   TextField,
@@ -51,10 +51,13 @@ export default function CreateSession() {
   const [form, setForm] = useState({
     room: "",
     title: "",
+    latitude: "",
+    longitude: "",
   });
+  const [rooms, setRooms] = useState([]);
 
   const [position, setPosition] = useState(null);
-  const [loadingGPS, setLoadingGPS] = useState(false);
+  // const [loadingGPS, setLoadingGPS] = useState(false);
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -73,45 +76,56 @@ export default function CreateSession() {
     return null;
   }
 
-  const handleGetCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      alert("อุปกรณ์นี้ไม่รองรับ GPS");
-      return;
-    }
+  // const handleGetCurrentLocation = () => {
+  //   if (!navigator.geolocation) {
+  //     alert("อุปกรณ์นี้ไม่รองรับ GPS");
+  //     return;
+  //   }
 
-    setLoadingGPS(true);
+  //   setLoadingGPS(true);
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setPosition({
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        });
-        setLoadingGPS(false);
-      },
-      () => {
-        alert("ไม่สามารถดึงตำแหน่งได้");
-        setLoadingGPS(false);
-      },
-    );
-  };
+  //   navigator.geolocation.getCurrentPosition(
+  //     (pos) => {
+  //       setPosition({
+  //         lat: pos.coords.latitude,
+  //         lng: pos.coords.longitude,
+  //       });
+  //       setLoadingGPS(false);
+  //     },
+  //     () => {
+  //       alert("ไม่สามารถดึงตำแหน่งได้");
+  //       setLoadingGPS(false);
+  //     },
+  //   );
+  // };
+const handleSelectRoom = (e) => {
+  const selectedRoomName = e.target.value;
 
+  const selectedRoom = rooms.find(
+    (r) => r.room === selectedRoomName
+  );
+
+  if (!selectedRoom) return;
+
+  setForm((prev) => ({
+    ...prev,
+    room: selectedRoom.room,        // เก็บชื่อห้อง
+    latitude: selectedRoom.latitude,
+    longitude: selectedRoom.longitude,
+  }));
+};
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!position) {
-      alert("กรุณาเลือกตำแหน่งบนแผนที่");
-      return;
-    }
-
+   
     try {
       const payload = {
         room: form.room,
         title: form.title,
         startTime: form.startTime,
         endTime: form.endTime,
-        latitude: position.lat,
-        longitude: position.lng,
+        latitude: form.latitude,
+        longitude: form.longitude,
       };
 
       await api.post("/sessions", payload);
@@ -131,7 +145,12 @@ export default function CreateSession() {
       alert(err?.response?.data?.error || "❌ ไม่สามารถสร้าง Session ได้");
     }
   };
-
+  useEffect(() => {
+    api.get("/roomlist").then((res) => {
+      console.log(res.data.rooms);
+      setRooms(res.data.rooms);
+    });
+  }, []);
   return (
     <Box
       sx={{
@@ -177,12 +196,15 @@ export default function CreateSession() {
             label="ห้อง"
             name="room"
             value={form.room}
-            onChange={handleChange}
+            onChange={handleSelectRoom}
             margin="normal"
             required
           >
-            <MenuItem value="A101">A101</MenuItem>
-            <MenuItem value="A102">A102</MenuItem>
+            {rooms?.map((room) => (
+              <MenuItem key={room._id} value={room.room}>
+                {room.room}
+              </MenuItem>
+            ))}
           </TextField>
 
           <TextField
@@ -209,7 +231,7 @@ export default function CreateSession() {
           />
 
           {/* ปุ่ม GPS */}
-          <Stack direction="row" justifyContent="flex-end" sx={{ mt: 1 }}>
+          {/* <Stack direction="row" justifyContent="flex-end" sx={{ mt: 1 }}>
             <Button
               size="small"
               startIcon={<MyLocationIcon />}
@@ -219,10 +241,10 @@ export default function CreateSession() {
             >
               ใช้ตำแหน่งปัจจุบัน
             </Button>
-          </Stack>
+          </Stack> */}
 
           {/* แผนที่ */}
-          <Box sx={{ height: 350, width: "100%", my: 2 }}>
+          {/* <Box sx={{ height: 350, width: "100%", my: 2 }}>
             <MapContainer
               center={
                 position ? [position.lat, position.lng] : [13.7563, 100.5018]
@@ -234,18 +256,18 @@ export default function CreateSession() {
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               <MapClickHandler position={position} setPosition={setPosition} />
             </MapContainer>
-          </Box>
+          </Box> */}
 
           <TextField
             label="Latitude"
-            value={position?.lat || ""}
+            value={form.latitude || ""}
             fullWidth
             margin="normal"
             disabled
           />
           <TextField
             label="Longitude"
-            value={position?.lng || ""}
+            value={form.longitude || ""}
             fullWidth
             margin="normal"
             disabled
